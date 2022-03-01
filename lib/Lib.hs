@@ -1,4 +1,4 @@
-module Lib where --(bar, gameOfLife, Alives) where
+module Lib (bar, gameOfLife, Alives, Point) where
 
 import Data.Function (fix)
 import Data.Ix (inRange)
