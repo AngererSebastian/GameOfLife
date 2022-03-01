@@ -9,24 +9,13 @@ import StepSimulation
 
 cellHeight = 20
 
-screenH = 1080
+backgroundColor = makeColor 0 (0x2b / 255) (0x36 / 255) 1
 
-screenW = 1920
+forgroundColor = makeColor (0x85 / 255) (0x99 / 255) 0 1
 
-rows = screenH / cellHeight
+window = InWindow "Game of Life" (400, 400) (100, 100)
 
-cols = screenW / cellHeight
-
-drawAliveCell =
-  let width = cellHeight / 10
-      height = (cellHeight - 2) * sqrt 2
-      rect = rectangleSolid height width
-      negCellHalf = (-cellHeight / 2)
-   in translate negCellHalf negCellHalf $
-        pictures
-          [ rotate 45 rect,
-            rotate (-45) rect
-          ]
+drawAliveCell = rectangleSolid cellHeight cellHeight
 
 cellsPic :: Alives -> Picture
 cellsPic aliveCells = pictures $ map draw alives
@@ -35,32 +24,21 @@ cellsPic aliveCells = pictures $ map draw alives
     draw (i, j) = translate (off i) (off j) drawAliveCell
     alives = map (bimap fromInteger fromIntegral) aliveCells
 
---aliveCells = filter (isAlive . uncurry (curry grid `on` floor)) $ (,) <$> [1 .. cols] <*> [1 .. rows]
-
-gridPic = pictures $ vert ++ horiz
-  where
-    off i = i * cellHeight
-    drawLines f n = map (line . f) [1 .. n]
-    vertF i = [(off i, 0), (off i, screenH)]
-    horizF i = [(0, off i), (screenW, off i)]
-    vert = drawLines vertF cols
-    horiz = drawLines horizF rows
-
-golPic grid = translate (-1920 / 2) (-1080 / 2) $ pictures [cellsPic grid, gridPic]
+windowPic = color forgroundColor . cellsPic
 
 main :: IO ()
-main = simulateBoard $ glider 20 20
+main = simulateBoard $ glider 0 0
 
 presentBoard board =
-  display FullScreen (greyN 0.3) (golPic board)
+  display window backgroundColor $ windowPic board
 
 simulateBoard board =
   simulate
-    FullScreen
-    (greyN 0.3)
-    1
+    window
+    backgroundColor
+    3
     board
-    golPic
+    windowPic
     (const . const gameOfLife)
 
 glider n m =
